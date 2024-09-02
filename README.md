@@ -1,10 +1,10 @@
 # HashMap implementation in C
 
-This document provides an overview and detailed description of the functions available in the `HashMap` library.
+This document provides an overview and detailed description of the functions available in this `HashMap` implementation.
 
 ## Overview
 
-The `HashMap` library provides a flexible hash map implementation with functions to create, manipulate, and destroy hash maps. It supports both default and custom hash functions.
+This `HashMap` implementation provides a flexible hash map with functions to create, manipulate, and destroy hash maps. It supports both default and custom hash functions.
 
 ## Typedefs
 ```c

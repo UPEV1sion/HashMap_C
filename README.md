@@ -38,7 +38,7 @@ The `HashMap` library provides a flexible hash map implementation with functions
 - **Parameters**:
   - `hm`: The `HashMap` to be destroyed.
   
-- **Returns**: A success code (typically 0 for success).
+- **Returns**: A success code.
 
 ### `void *hm_get(HashMap hm, const void *key);`
 
@@ -59,7 +59,7 @@ The `HashMap` library provides a flexible hash map implementation with functions
   - `key`: The key whose value is to be updated.
   - `value`: The new value to be associated with the key.
   
-- **Returns**: A success code (typically 0 for success).
+- **Returns**: A success code.
 
 ### `int hm_put(HashMap hm, const void *key, const void *value);`
 
@@ -70,7 +70,7 @@ The `HashMap` library provides a flexible hash map implementation with functions
   - `key`: The key to be added.
   - `value`: The value to be associated with the key.
   
-- **Returns**: A success code (typically 0 for success).
+- **Returns**: A success code.
 
 ### `int hm_remove(HashMap hm, const void *key);`
 
@@ -80,7 +80,7 @@ The `HashMap` library provides a flexible hash map implementation with functions
   - `hm`: The `HashMap`.
   - `key`: The key of the key-value pair to be removed.
   
-- **Returns**: A success code (typically 0 for success).
+- **Returns**: A success code.
 
 ## Error Codes
 

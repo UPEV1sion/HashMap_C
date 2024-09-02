@@ -219,7 +219,8 @@ int hm_remove(HashMap hm, const void *key)
             if (prev == NULL)
             {
                 hm->buckets[hash] = bucket->next;
-            } else
+            } 
+            else
             {
                 prev->next = bucket->next;
             }

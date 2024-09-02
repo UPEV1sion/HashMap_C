@@ -36,6 +36,8 @@ int hm_remove(HashMap hm, const void *key);
   
 - **Returns**: A new `HashMap` object.
 
+---
+
 ### `HashMap hm_create_ch(size_t hm_capacity, size_t key_size, size_t value_size, hash hash_func);`
 
 **Description**: Creates a new `HashMap` with a custom hash function.
@@ -48,6 +50,8 @@ int hm_remove(HashMap hm, const void *key);
   
 - **Returns**: A new `HashMap` object.
 
+---
+
 ### `int hm_destroy(HashMap hm);`
 
 **Description**: Destroys the `HashMap`.
@@ -56,6 +60,8 @@ int hm_remove(HashMap hm, const void *key);
   - `hm`: The `HashMap` to be destroyed.
   
 - **Returns**: A success code.
+
+---
 
 ### `void *hm_get(HashMap hm, const void *key);`
 
@@ -66,6 +72,8 @@ int hm_remove(HashMap hm, const void *key);
   - `key`: The key whose associated value is to be retrieved.
   
 - **Returns**: A pointer to the value at the specified key, or `NULL` if the key is not found.
+
+---
 
 ### `int hm_set(HashMap hm, const void *key, const void *value);`
 
@@ -78,6 +86,8 @@ int hm_remove(HashMap hm, const void *key);
   
 - **Returns**: A success code.
 
+---
+
 ### `int hm_put(HashMap hm, const void *key, const void *value);`
 
 **Description**: Adds a new key-value pair to the `HashMap`.
@@ -89,6 +99,8 @@ int hm_remove(HashMap hm, const void *key);
   
 - **Returns**: A success code.
 
+---
+
 ### `int hm_remove(HashMap hm, const void *key);`
 
 **Description**: Removes the key-value pair associated with the specified key.
@@ -99,10 +111,14 @@ int hm_remove(HashMap hm, const void *key);
   
 - **Returns**: A success code.
 
+---
+
 ## Error Codes
 
 - `0`: Success
 - Non-zero values may indicate specific errors (implementation-dependent).
+
+---
 
 ## Example
 

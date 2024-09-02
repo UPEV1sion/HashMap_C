@@ -4,6 +4,8 @@
 
 #include "hashmap.h"
 
+#include <stdio.h>
+
 //
 // Created by Emanuel on 02.09.2024.
 //
@@ -45,7 +47,7 @@ Bucket* create_bucket(const void *key, const void *value, const size_t key_size,
     memcpy(bucket->key, key, key_size);
 
     bucket->value = malloc(value_size);
-    assert(bucket->key != NULL);
+    assert(bucket->value != NULL);
     memcpy(bucket->value, value, value_size);
 
     bucket->hash   = hash;
@@ -76,7 +78,7 @@ double calc_load_fac(HashMap hm)
 int hm_resize(HashMap hm)
 {
     size_t new_capacity = hm->capacity * 2;
-    if (new_capacity < MAX_CAPACITY)
+    if (new_capacity > MAX_CAPACITY)
         new_capacity = MAX_CAPACITY;
     Bucket **new_buckets = calloc(new_capacity, sizeof(Bucket *));
     assert(new_buckets != NULL);
@@ -88,10 +90,11 @@ int hm_resize(HashMap hm)
             Bucket *next = bucket->next;
             if (bucket->status == ACTIVE)
             {
-                const size_t hash = hm->hash_func(bucket->key, bucket->hash) % new_capacity;
+                const size_t hash = hm->hash_func(bucket->key, hm->key_size) % new_capacity;
                 bucket->next      = new_buckets[hash];
                 new_buckets[hash] = bucket;
-            } else
+            }
+            else
             {
                 free(bucket->key);
                 free(bucket->value);
@@ -117,15 +120,12 @@ HashMap hm_create_ch(const size_t hm_capacity, const size_t key_size, const size
 
 HashMap hm_create(const size_t hm_capacity, const size_t key_size, const size_t value_size)
 {
-    const HashMap hm = malloc(sizeof(HashMap));
+    const HashMap hm = malloc(sizeof(*hm));
     assert(hm != NULL);
     hm->hash_func = _hash;
-    hm->buckets   = calloc(hm_capacity, sizeof(Bucket *));
+    hm->capacity = (hm_capacity < MIN_CAPACITY) ? MIN_CAPACITY : hm_capacity;
+    hm->buckets   = calloc(hm->capacity, sizeof(Bucket *));
     assert(hm->buckets != NULL);
-    if (hm_capacity < MIN_CAPACITY)
-        hm->capacity = MIN_CAPACITY;
-    else
-        hm->capacity = hm_capacity;
     hm->size       = 0;
     hm->key_size   = key_size;
     hm->value_size = value_size;
@@ -135,7 +135,7 @@ HashMap hm_create(const size_t hm_capacity, const size_t key_size, const size_t 
 
 int hm_destroy(HashMap hm)
 {
-    for (int i = 0; i < hm->capacity; ++i)
+    for (size_t i = 0; i < hm->capacity; ++i)
     {
         for (Bucket *bucket = hm->buckets[i]; bucket != NULL;)
         {

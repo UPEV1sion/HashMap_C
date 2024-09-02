@@ -6,6 +6,16 @@ This document provides an overview and detailed description of the functions ava
 
 The `HashMap` library provides a flexible hash map implementation with functions to create, manipulate, and destroy hash maps. It supports both default and custom hash functions.
 
+## Function Overview
+
+### `HashMap hm_create(size_t hm_capacity, size_t key_size, size_t value_size);`
+### `HashMap hm_create_ch(size_t hm_capacity, size_t key_size, size_t value_size, hash hash_func);`
+### `int hm_destroy(HashMap hm);`
+### `void *hm_get(HashMap hm, const void *key);`
+### `int hm_set(HashMap hm, const void *key, const void *value);`
+### `int hm_put(HashMap hm, const void *key, const void *value);`
+### `int hm_remove(HashMap hm, const void *key);`
+
 ## Function Reference
 
 ### `HashMap hm_create(size_t hm_capacity, size_t key_size, size_t value_size);`

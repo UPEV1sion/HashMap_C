@@ -34,7 +34,7 @@ int hm_remove(HashMap hm, const void *key);
   - `key_size`: The size of the key.
   - `value_size`: The size of the value.
   
-- **Returns**: A new `HashMap` object.
+- **Returns**: A new `HashMap`.
 
 ---
 
@@ -48,7 +48,7 @@ int hm_remove(HashMap hm, const void *key);
   - `value_size`: The size of the value.
   - `hash_func`: A custom hash function to be used by the `HashMap`.
   
-- **Returns**: A new `HashMap` object.
+- **Returns**: A new `HashMap`.
 
 ---
 

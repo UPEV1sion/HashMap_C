@@ -116,7 +116,7 @@ int hm_remove(HashMap hm, const void *key);
 ## Error Codes
 
 - `0`: Success
-- Non-zero values may indicate specific errors (implementation-dependent).
+- Non-zero values indicate errors.
 
 ---
 
@@ -137,7 +137,7 @@ int main() {
     hm_put(map, &key, &value);
     
     // Retrieve the value
-    int *retrieved_value = (int *)hm_get(map, &key);
+    int *retrieved_value = hm_get(map, &key);
     
     // Destroy the HashMap
     hm_destroy(map);

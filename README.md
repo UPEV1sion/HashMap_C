@@ -25,7 +25,7 @@ int hm_remove(HashMap hm, const void *key);
 ```
 ## Function Reference
 
-### `HashMap hm_create(size_t hm_capacity, size_t key_size, size_t value_size);`
+### ```c HashMap hm_create(size_t hm_capacity, size_t key_size, size_t value_size);```
 
 **Description**: Creates a new `HashMap` with a generic hash function.
 

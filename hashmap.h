@@ -5,6 +5,8 @@
 #ifndef HASHMAP_H
 #define HASHMAP_H
 
+#include <stddef.h>
+
 typedef struct HashMap *HashMap;
 typedef size_t (*hash)(const void *key, size_t key_size);
 

@@ -14,15 +14,15 @@ typedef size_t (*hash)(const void *key, size_t key_size);
 
 
 ## Function Overview
-
-`HashMap hm_create(size_t hm_capacity, size_t key_size, size_t value_size);`
-`HashMap hm_create_ch(size_t hm_capacity, size_t key_size, size_t value_size, hash hash_func);`
-`int hm_destroy(HashMap hm);`
-`void *hm_get(HashMap hm, const void *key);`
-`int hm_set(HashMap hm, const void *key, const void *value);`
-`int hm_put(HashMap hm, const void *key, const void *value);`
-`int hm_remove(HashMap hm, const void *key);`
-
+```c
+HashMap hm_create(size_t hm_capacity, size_t key_size, size_t value_size);
+HashMap hm_create_ch(size_t hm_capacity, size_t key_size, size_t value_size, hash hash_func);
+int hm_destroy(HashMap hm);
+void *hm_get(HashMap hm, const void *key);
+int hm_set(HashMap hm, const void *key, const void *value);
+int hm_put(HashMap hm, const void *key, const void *value);
+int hm_remove(HashMap hm, const void *key);
+```
 ## Function Reference
 
 ### `HashMap hm_create(size_t hm_capacity, size_t key_size, size_t value_size);`

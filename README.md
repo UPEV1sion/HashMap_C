@@ -40,7 +40,9 @@ HashMap hm_create(size_t hm_capacity, size_t key_size, size_t value_size);
 
 ---
 
-### `HashMap hm_create_ch(size_t hm_capacity, size_t key_size, size_t value_size, hash hash_func);`
+```c
+HashMap hm_create_ch(size_t hm_capacity, size_t key_size, size_t value_size, hash hash_func);
+```
 
 **Description**: Creates a new `HashMap` with a custom hash function.
 
@@ -54,7 +56,9 @@ HashMap hm_create(size_t hm_capacity, size_t key_size, size_t value_size);
 
 ---
 
-### `int hm_destroy(HashMap hm);`
+```c
+int hm_destroy(HashMap hm);
+```
 
 **Description**: Destroys the `HashMap`.
 
@@ -65,7 +69,9 @@ HashMap hm_create(size_t hm_capacity, size_t key_size, size_t value_size);
 
 ---
 
-### `void *hm_get(HashMap hm, const void *key);`
+```c
+void *hm_get(HashMap hm, const void *key);
+```
 
 **Description**: Retrieves the value associated with the specified key.
 
@@ -77,7 +83,9 @@ HashMap hm_create(size_t hm_capacity, size_t key_size, size_t value_size);
 
 ---
 
-### `int hm_set(HashMap hm, const void *key, const void *value);`
+```c
+int hm_set(HashMap hm, const void *key, const void *value);
+```
 
 **Description**: Updates the value associated with the specified key.
 
@@ -90,7 +98,9 @@ HashMap hm_create(size_t hm_capacity, size_t key_size, size_t value_size);
 
 ---
 
-### `int hm_put(HashMap hm, const void *key, const void *value);`
+```c
+int hm_put(HashMap hm, const void *key, const void *value);
+```
 
 **Description**: Adds a new key-value pair to the `HashMap`.
 
@@ -103,7 +113,9 @@ HashMap hm_create(size_t hm_capacity, size_t key_size, size_t value_size);
 
 ---
 
-### `int hm_remove(HashMap hm, const void *key);`
+```c
+int hm_remove(HashMap hm, const void *key);
+```
 
 **Description**: Removes the key-value pair associated with the specified key.
 

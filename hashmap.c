@@ -4,8 +4,6 @@
 
 #include "hashmap.h"
 
-#include <stdio.h>
-
 //
 // Created by Emanuel on 02.09.2024.
 //

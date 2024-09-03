@@ -1,6 +1,6 @@
 # HashMap implementation in C
 
-A very lightweight, performant HashMap implementation in C
+A very lightweight, performant HashMap implementation in C.
 
 This document provides an overview and detailed description of the functions available in this `HashMap` implementation.
 

@@ -114,6 +114,19 @@ int hm_put(HashMap hm, const void *key, const void *value);
 ---
 
 ```c
+size_t hm_size(HashMap hm);
+```
+
+**Description**: Returns the size of the HashMap.
+
+- **Parameters**:
+  - `hm`: The `HashMap`.
+  
+- **Returns**: The size.
+  
+---
+
+```c
 int hm_remove(HashMap hm, const void *key);
 ```
 

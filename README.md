@@ -2,7 +2,7 @@
 
 A very lightweight, performant `HashMap` implementation in C.
 
-> **_NOTE:_**  This `HashMap` implementation solely relies on a "Array of `Linked List` implementation. Testing with "treeifying" a node after a certain threshold yielded a negative performance impact from the extensive testing needed.
+> **_NOTE:_**  This `HashMap` implementation solely relies on a "Array of `Linked List`s" implementation. Testing with "treeifying" a node after a certain threshold yielded a negative performance impact from the extensive testing needed.
 
 This document provides an overview and detailed description of the functions available in this `HashMap` implementation.
 

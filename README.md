@@ -145,7 +145,7 @@ int hm_remove(HashMap hm, const void *key);
 
 ## Error Codes
 
-- `0`: Success
+- `0`: Success.
 - Non-zero values indicate errors.
 
 ---

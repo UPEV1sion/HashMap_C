@@ -209,6 +209,20 @@ int hm_put(const HashMap hm, const void *key, const void *value)
     return 0;
 }
 
+bool hm_contains(const HashMap hm, const void *key)
+{
+    const size_t hash = hm->hash_func(key, hm->key_size) % hm->capacity;
+    for (Bucket *bucket = hm->buckets[hash]; bucket != NULL; bucket = bucket->next)
+    {
+        if (bucket->status == ACTIVE && memcmp(bucket->key, key, hm->key_size) == 0)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 size_t hm_size(const HashMap hm)
 {
     return hm->size;

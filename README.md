@@ -33,7 +33,7 @@ int hm_remove(HashMap hm, const void *key);
 HashMap hm_create(size_t hm_capacity, size_t key_size, size_t value_size, hash hash_func);
 ```
 
-**Description**: Creates a new `HashMap` with a hash function. Pass `NULL` for generic hashing.
+**Description**: Creates a new `HashMap` with a hash function.
 
 > **_NOTE:_** Recommended way to create a `HashMap` is to use a custom hash function to avoid unwanted collisions.
 

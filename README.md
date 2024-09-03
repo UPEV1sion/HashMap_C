@@ -21,6 +21,7 @@ int hm_destroy(HashMap hm);
 void *hm_get(HashMap hm, const void *key);
 int hm_set(HashMap hm, const void *key, const void *value);
 int hm_put(HashMap hm, const void *key, const void *value);
+size_t hm_size(HashMap hm);
 int hm_remove(HashMap hm, const void *key);
 ```
 ## Function Reference

@@ -163,18 +163,18 @@ Here is a basic example demonstrating how to use the `HashMap` functions:
 
 int main() {
     // Create a HashMap
-    HashMap map = hm_create(10, sizeof(int), sizeof(int));
+    HashMap hm = hm_create(10, sizeof(int), sizeof(int));
     
     // Add a key-value pair
     int key = 1;
     int value = 100;
-    hm_put(map, &key, &value);
+    hm_put(hm, &key, &value);
     
     // Retrieve the value
-    int *retrieved_value = hm_get(map, &key);
+    int *retrieved_value = hm_get(hm, &key);
     
     // Destroy the HashMap
-    hm_destroy(map);
+    hm_destroy(hm);
     
     return 0;
 }

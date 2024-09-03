@@ -24,6 +24,7 @@ int hm_destroy(HashMap hm);
 void *hm_get(HashMap hm, const void *key);
 int hm_set(HashMap hm, const void *key, const void *value);
 int hm_put(HashMap hm, const void *key, const void *value);
+bool hm_contains(HashMap hm, const void *key);
 size_t hm_size(HashMap hm);
 int hm_remove(HashMap hm, const void *key);
 ```
@@ -101,6 +102,20 @@ int hm_put(HashMap hm, const void *key, const void *value);
   - `value`: The value to be associated with the key.
   
 - **Returns**: A success code.
+
+---
+
+```c
+bool hm_contains(HashMap hm, const void *key);
+```
+
+**Description**: Tests if the `HashMap` contains the specified key.
+
+- **Parameters**:
+  - `hm`: The `HashMap`.
+  - `key`: The key to be tested.
+  
+- **Returns**: True or Falsehood.
 
 ---
 

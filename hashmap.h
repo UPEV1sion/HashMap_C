@@ -6,6 +6,7 @@
 #define HASHMAP_H
 
 #include <stddef.h>
+#include <stdbool.h>
 
 typedef struct HashMap *HashMap;
 typedef size_t (*hash)(const void *key, size_t key_size);
@@ -57,6 +58,16 @@ int hm_set(HashMap hm, const void *key, const void *value);
  * @return Success code
  */
 int hm_put(HashMap hm, const void *key, const void *value);
+
+
+/**
+ * @brief Tests if the HashMap contains a key.
+ *
+ * @param hm The HashMap
+ * @param key The key
+ * @return True or Falsehood
+ */
+bool hm_contains(HashMap hm, const void *key);
 
 /**
  * @brief Returns the size of the HashMap.

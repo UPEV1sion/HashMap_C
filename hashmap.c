@@ -4,8 +4,6 @@
 
 #include "hashmap.h"
 
-#include <stdio.h>
-
 //
 // Created by Emanuel on 02.09.2024.
 //
@@ -77,7 +75,6 @@ double calc_load_fac(HashMap hm)
 
 int hm_resize(HashMap hm)
 {
-    puts("Resizing");
     size_t new_capacity = hm->capacity * 2;
     if (new_capacity > MAX_CAPACITY)
         new_capacity = MAX_CAPACITY;

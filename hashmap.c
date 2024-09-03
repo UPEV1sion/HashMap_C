@@ -65,7 +65,7 @@ size_t _hash(const void *key, const size_t key_size)
     {
         hash = ((hash << 5) + hash) + data[i];
     }
-    
+
     return hash;
 }
 
@@ -113,22 +113,13 @@ int hm_resize(const HashMap hm)
     return 0;
 }
 
-HashMap hm_create_ch(const size_t hm_capacity, const size_t key_size, const size_t value_size,
-                     const hash hash_func)
-{
-    const HashMap hm = hm_create(hm_capacity, key_size, value_size);
-    hm->hash_func    = hash_func;
-    
-    return hm;
-}
-
-HashMap hm_create(const size_t hm_capacity, const size_t key_size, const size_t value_size)
+HashMap hm_create(const size_t hm_capacity, const size_t key_size, const size_t value_size, const hash hash_func)
 {
     const HashMap hm = malloc(sizeof(*hm));
     assert(hm != NULL);
-    hm->hash_func = _hash;
-    hm->capacity  = (hm_capacity < MIN_CAPACITY) ? MIN_CAPACITY : hm_capacity;
-    hm->buckets   = calloc(hm->capacity, sizeof(Bucket *));
+    hm->hash_func = hash_func == NULL ? _hash : hash_func;
+    hm->capacity = (hm_capacity < MIN_CAPACITY) ? MIN_CAPACITY : hm_capacity;
+    hm->buckets  = calloc(hm->capacity, sizeof(Bucket *));
     assert(hm->buckets != NULL);
     hm->size       = 0;
     hm->key_size   = key_size;
@@ -152,7 +143,7 @@ int hm_destroy(const HashMap hm)
     }
     free(hm->buckets);
     free(hm);
-    
+
     return 0;
 }
 
@@ -166,7 +157,7 @@ void* hm_get(const HashMap hm, const void *key)
             return bucket->value;
         }
     }
-    
+
     return NULL;
 }
 
@@ -182,6 +173,7 @@ int hm_set(const HashMap hm, const void *key, const void *value)
             assert(bucket->value != NULL);
             memcpy(bucket->value, value, hm->value_size);
             bucket->status = ACTIVE;
+
             return 0;
         }
     }
@@ -240,6 +232,7 @@ int hm_remove(const HashMap hm, const void *key)
             }
             bucket->status = TOMBSTONE;
             hm->size--;
+
             return 0;
         }
         prev = bucket;

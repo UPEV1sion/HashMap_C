@@ -61,7 +61,7 @@ int hm_put(HashMap hm, const void *key, const void *value);
 
 
 /**
- * @brief Tests if the HashMap contains a key.
+ * @brief Tests if the HashMap contains the specified key.
  *
  * @param hm The HashMap
  * @param key The key

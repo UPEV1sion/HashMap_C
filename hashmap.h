@@ -78,7 +78,7 @@ bool hm_contains(HashMap hm, const void *key);
 size_t hm_size(HashMap hm);
 
 /**
- * @brief Removes the key-value pair from the HashMap
+ * @brief Removes the key-value pair from the HashMap.
  *
  * @param hm The HashMap
  * @param key The key

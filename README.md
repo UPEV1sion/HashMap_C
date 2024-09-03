@@ -148,7 +148,7 @@ Here is a basic example demonstrating how to use the `HashMap` functions:
 int main()
 {
     // Create a HashMap
-    HashMap hm = hm_create(10, sizeof(int), sizeof(int));
+    HashMap hm = hm_create(10, sizeof(int), sizeof(int), NULL);
     
     // Add a key-value pair
     int key = 1;

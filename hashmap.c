@@ -150,6 +150,7 @@ int hm_destroy(HashMap hm)
     }
     free(hm->buckets);
     free(hm);
+    
     return 0;
 }
 
@@ -163,6 +164,7 @@ void* hm_get(HashMap hm, const void *key)
             return bucket->value;
         }
     }
+    
     return NULL;
 }
 

@@ -11,7 +11,7 @@ typedef struct HashMap *HashMap;
 typedef size_t (*hash)(const void *key, size_t key_size);
 
 /**
- * @brief Creates a new HashMap with a generic hash function.
+ * @brief Creates a new HashMap with a hash function.
  *
  * @param hm_capacity The initial capacity of the HashMap
  * @param key_size The sizeof value of the key

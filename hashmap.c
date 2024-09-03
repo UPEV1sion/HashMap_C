@@ -4,6 +4,8 @@
 
 #include "hashmap.h"
 
+#include <stdio.h>
+
 //
 // Created by Emanuel on 02.09.2024.
 //
@@ -75,15 +77,22 @@ double calc_load_fac(HashMap hm)
 
 int hm_resize(HashMap hm)
 {
+    puts("Resizing");
     size_t new_capacity = hm->capacity * 2;
     if (new_capacity > MAX_CAPACITY)
         new_capacity = MAX_CAPACITY;
-    Bucket **new_buckets = calloc(new_capacity, sizeof(Bucket *));
+    if (new_capacity >= MAX_CAPACITY * LOAD_FACTOR)
+        return 1;
+    Bucket **new_buckets = realloc(hm->buckets, new_capacity * sizeof(Bucket *));
     assert(new_buckets != NULL);
+    memset(new_buckets + hm->capacity, 0, (new_capacity - hm->capacity) * sizeof(Bucket *));
+    hm->buckets = new_buckets;
 
     for (size_t i = 0; i < hm->capacity; i++)
     {
-        for (Bucket *bucket = hm->buckets[i]; bucket != NULL;)
+        Bucket *bucket = new_buckets[i];
+        new_buckets[i] = NULL;
+        while (bucket != NULL)
         {
             Bucket *next = bucket->next;
             if (bucket->status == ACTIVE)
@@ -101,8 +110,6 @@ int hm_resize(HashMap hm)
             bucket = next;
         }
     }
-    free(hm->buckets);
-    hm->buckets  = new_buckets;
     hm->capacity = new_capacity;
 
     return 0;
@@ -121,7 +128,7 @@ HashMap hm_create(const size_t hm_capacity, const size_t key_size, const size_t 
     const HashMap hm = malloc(sizeof(*hm));
     assert(hm != NULL);
     hm->hash_func = _hash;
-    hm->capacity = (hm_capacity < MIN_CAPACITY) ? MIN_CAPACITY : hm_capacity;
+    hm->capacity  = (hm_capacity < MIN_CAPACITY) ? MIN_CAPACITY : hm_capacity;
     hm->buckets   = calloc(hm->capacity, sizeof(Bucket *));
     assert(hm->buckets != NULL);
     hm->size       = 0;
@@ -184,7 +191,8 @@ int hm_set(HashMap hm, const void *key, const void *value)
 int hm_put(HashMap hm, const void *key, const void *value)
 {
     if (calc_load_fac(hm) > LOAD_FACTOR)
-        hm_resize(hm);
+        if (hm_resize(hm) != 0)
+            return 1;
 
     const size_t hash = hm->hash_func(key, hm->key_size) % hm->capacity;
     for (Bucket *bucket = hm->buckets[hash]; bucket != NULL; bucket = bucket->next)
@@ -208,6 +216,11 @@ int hm_put(HashMap hm, const void *key, const void *value)
     return 0;
 }
 
+size_t hm_size(HashMap hm)
+{
+    return hm->size;
+}
+
 int hm_remove(HashMap hm, const void *key)
 {
     const size_t hash = hm->hash_func(key, hm->key_size) % hm->capacity;
@@ -219,7 +232,7 @@ int hm_remove(HashMap hm, const void *key)
             if (prev == NULL)
             {
                 hm->buckets[hash] = bucket->next;
-            } 
+            }
             else
             {
                 prev->next = bucket->next;

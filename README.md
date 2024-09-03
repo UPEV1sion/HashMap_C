@@ -161,7 +161,8 @@ Here is a basic example demonstrating how to use the `HashMap` functions:
 ```c
 #include "hashmap.h"
 
-int main() {
+int main()
+{
     // Create a HashMap
     HashMap hm = hm_create(10, sizeof(int), sizeof(int));
     

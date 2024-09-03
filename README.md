@@ -19,8 +19,8 @@ typedef size_t (*hash)(const void *key, size_t key_size);
 
 ## Function Overview
 ```c
-HashMap hm_create(size_t hm_capacity, size_t key_size, size_t value_size);
 HashMap hm_create_ch(size_t hm_capacity, size_t key_size, size_t value_size, hash hash_func);
+HashMap hm_create(size_t hm_capacity, size_t key_size, size_t value_size);
 int hm_destroy(HashMap hm);
 void *hm_get(HashMap hm, const void *key);
 int hm_set(HashMap hm, const void *key, const void *value);
@@ -29,6 +29,24 @@ size_t hm_size(HashMap hm);
 int hm_remove(HashMap hm, const void *key);
 ```
 ## Function Reference
+
+```c
+HashMap hm_create_ch(size_t hm_capacity, size_t key_size, size_t value_size, hash hash_func);
+```
+
+> **_NOTE:_** Recomended way to create a `HashMap` because the generic hash function can lead to many collitions.
+
+**Description**: Creates a new `HashMap` with a custom hash function.
+
+- **Parameters**:
+  - `hm_capacity`: The initial capacity of the `HashMap`.
+  - `key_size`: The size of the key.
+  - `value_size`: The size of the value.
+  - `hash_func`: A custom hash function to be used by the `HashMap`.
+  
+- **Returns**: A new `HashMap`.
+
+---
 
 ```c 
 HashMap hm_create(size_t hm_capacity, size_t key_size, size_t value_size);
@@ -40,22 +58,6 @@ HashMap hm_create(size_t hm_capacity, size_t key_size, size_t value_size);
   - `hm_capacity`: The initial capacity of the `HashMap`.
   - `key_size`: The size of the key.
   - `value_size`: The size of the value.
-  
-- **Returns**: A new `HashMap`.
-
----
-
-```c
-HashMap hm_create_ch(size_t hm_capacity, size_t key_size, size_t value_size, hash hash_func);
-```
-
-**Description**: Creates a new `HashMap` with a custom hash function.
-
-- **Parameters**:
-  - `hm_capacity`: The initial capacity of the `HashMap`.
-  - `key_size`: The size of the key.
-  - `value_size`: The size of the value.
-  - `hash_func`: A custom hash function to be used by the `HashMap`.
   
 - **Returns**: A new `HashMap`.
 

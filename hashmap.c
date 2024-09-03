@@ -57,23 +57,24 @@ Bucket* create_bucket(const void *key, const void *value, const size_t key_size,
 
 size_t _hash(const void *key, const size_t key_size)
 {
-    //DJB2 hash func
-    const char *str = key;
-    size_t hash     = 5381;
-    int c;
+    //DJB2 hash func variation
+    const unsigned char *data = key;
+    size_t hash               = 5381;
 
-    while ((c = *str++))
-        hash  = ((hash << 5) + hash) + c;
-
+    for (size_t i = 0; i < key_size; ++i)
+    {
+        hash = ((hash << 5) + hash) + data[i];
+    }
+    
     return hash;
 }
 
-double calc_load_fac(HashMap hm)
+double calc_load_fac(const HashMap hm)
 {
     return (double) hm->size / hm->capacity;
 }
 
-int hm_resize(HashMap hm)
+int hm_resize(const HashMap hm)
 {
     size_t new_capacity = hm->capacity * 2;
     if (new_capacity > MAX_CAPACITY)
@@ -113,10 +114,11 @@ int hm_resize(HashMap hm)
 }
 
 HashMap hm_create_ch(const size_t hm_capacity, const size_t key_size, const size_t value_size,
-                     hash hash_func)
+                     const hash hash_func)
 {
     const HashMap hm = hm_create(hm_capacity, key_size, value_size);
     hm->hash_func    = hash_func;
+    
     return hm;
 }
 
@@ -135,7 +137,7 @@ HashMap hm_create(const size_t hm_capacity, const size_t key_size, const size_t 
     return hm;
 }
 
-int hm_destroy(HashMap hm)
+int hm_destroy(const HashMap hm)
 {
     for (size_t i = 0; i < hm->capacity; ++i)
     {
@@ -154,7 +156,7 @@ int hm_destroy(HashMap hm)
     return 0;
 }
 
-void* hm_get(HashMap hm, const void *key)
+void* hm_get(const HashMap hm, const void *key)
 {
     const size_t hash = hm->hash_func(key, hm->key_size) % hm->capacity;
     for (Bucket *bucket = hm->buckets[hash]; bucket != NULL; bucket = bucket->next)
@@ -168,7 +170,7 @@ void* hm_get(HashMap hm, const void *key)
     return NULL;
 }
 
-int hm_set(HashMap hm, const void *key, const void *value)
+int hm_set(const HashMap hm, const void *key, const void *value)
 {
     const size_t hash = hm->hash_func(key, hm->key_size) % hm->capacity;
     for (Bucket *bucket = hm->buckets[hash]; bucket != NULL; bucket = bucket->next)
@@ -187,7 +189,7 @@ int hm_set(HashMap hm, const void *key, const void *value)
     return 1;
 }
 
-int hm_put(HashMap hm, const void *key, const void *value)
+int hm_put(const HashMap hm, const void *key, const void *value)
 {
     if (calc_load_fac(hm) > LOAD_FACTOR)
         if (hm_resize(hm) != 0)
@@ -215,12 +217,12 @@ int hm_put(HashMap hm, const void *key, const void *value)
     return 0;
 }
 
-size_t hm_size(HashMap hm)
+size_t hm_size(const HashMap hm)
 {
     return hm->size;
 }
 
-int hm_remove(HashMap hm, const void *key)
+int hm_remove(const HashMap hm, const void *key)
 {
     const size_t hash = hm->hash_func(key, hm->key_size) % hm->capacity;
     Bucket *prev      = NULL;

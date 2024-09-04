@@ -34,7 +34,7 @@ struct HashMap
     Bucket **buckets;
 };
 
-Bucket* create_bucket(const void *key, const void *value, const size_t key_size, const size_t value_size,
+static Bucket* create_bucket(const void *key, const void *value, const size_t key_size, const size_t value_size,
                       const size_t hash)
 {
     Bucket *bucket = malloc(sizeof(Bucket));
@@ -55,7 +55,7 @@ Bucket* create_bucket(const void *key, const void *value, const size_t key_size,
     return bucket;
 }
 
-size_t _hash(const void *key, const size_t key_size)
+static size_t _hash(const void *key, const size_t key_size)
 {
     //DJB2 hash func variation
     const unsigned char *data = key;
@@ -69,12 +69,12 @@ size_t _hash(const void *key, const size_t key_size)
     return hash;
 }
 
-double calc_load_fac(const HashMap hm)
+static double calc_load_fac(const HashMap hm)
 {
     return (double) hm->size / hm->capacity;
 }
 
-int hm_resize(const HashMap hm)
+static int hm_resize(const HashMap hm)
 {
     size_t new_capacity = hm->capacity * 2;
     if (new_capacity > MAX_CAPACITY)

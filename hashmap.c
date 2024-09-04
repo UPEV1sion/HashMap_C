@@ -16,11 +16,10 @@ typedef enum { ACTIVE, TOMBSTONE } BucketStatus;
 
 typedef struct Bucket
 {
-    void *key;
-    void *value;
     size_t hash;
     struct Bucket *next;
     BucketStatus status;
+    char payload[];
 } Bucket;
 
 struct HashMap
@@ -35,22 +34,18 @@ struct HashMap
 };
 
 static Bucket* create_bucket(const void *key, const void *value, const size_t key_size, const size_t value_size,
-                      const size_t hash)
+                             const size_t hash)
 {
-    Bucket *bucket = malloc(sizeof(Bucket));
+    size_t total_size = sizeof(Bucket) + key_size + value_size;
+    Bucket *bucket    = malloc(total_size);
     assert(bucket != NULL);
-
-    bucket->key = malloc(key_size);
-    assert(bucket->key != NULL);
-    memcpy(bucket->key, key, key_size);
-
-    bucket->value = malloc(value_size);
-    assert(bucket->value != NULL);
-    memcpy(bucket->value, value, value_size);
 
     bucket->hash   = hash;
     bucket->status = ACTIVE;
     bucket->next   = NULL;
+
+    memcpy(bucket->payload, key, key_size);
+    memcpy(bucket->payload + key_size, value, value_size);
 
     return bucket;
 }
@@ -95,14 +90,12 @@ static int hm_resize(const HashMap hm)
             Bucket *next = bucket->next;
             if (bucket->status == ACTIVE)
             {
-                const size_t hash = hm->hash_func(bucket->key, hm->key_size) % new_capacity;
+                const size_t hash = hm->hash_func(bucket->payload, hm->key_size) % new_capacity;
                 bucket->next      = new_buckets[hash];
                 new_buckets[hash] = bucket;
             }
             else
             {
-                free(bucket->key);
-                free(bucket->value);
                 free(bucket);
             }
             bucket = next;
@@ -118,8 +111,8 @@ HashMap hm_create(const size_t hm_capacity, const size_t key_size, const size_t 
     const HashMap hm = malloc(sizeof(*hm));
     assert(hm != NULL);
     hm->hash_func = hash_func == NULL ? _hash : hash_func;
-    hm->capacity = (hm_capacity < MIN_CAPACITY) ? MIN_CAPACITY : hm_capacity;
-    hm->buckets  = calloc(hm->capacity, sizeof(Bucket *));
+    hm->capacity  = (hm_capacity < MIN_CAPACITY) ? MIN_CAPACITY : hm_capacity;
+    hm->buckets   = calloc(hm->capacity, sizeof(Bucket *));
     assert(hm->buckets != NULL);
     hm->size       = 0;
     hm->key_size   = key_size;
@@ -128,22 +121,10 @@ HashMap hm_create(const size_t hm_capacity, const size_t key_size, const size_t 
     return hm;
 }
 
-int hm_destroy(const HashMap hm)
+int hm_destroy(HashMap hm)
 {
-    for (size_t i = 0; i < hm->capacity; ++i)
-    {
-        for (Bucket *bucket = hm->buckets[i]; bucket != NULL;)
-        {
-            Bucket *next = bucket->next;
-            free(bucket->key);
-            free(bucket->value);
-            free(bucket);
-            bucket = next;
-        }
-    }
     free(hm->buckets);
     free(hm);
-
     return 0;
 }
 
@@ -152,9 +133,9 @@ void* hm_get(const HashMap hm, const void *key)
     const size_t hash = hm->hash_func(key, hm->key_size) % hm->capacity;
     for (Bucket *bucket = hm->buckets[hash]; bucket != NULL; bucket = bucket->next)
     {
-        if (bucket->status == ACTIVE && memcmp(bucket->key, key, hm->key_size) == 0)
+        if (bucket->status == ACTIVE && memcmp(bucket->payload, key, hm->key_size) == 0)
         {
-            return bucket->value;
+            return bucket->payload + hm->key_size;
         }
     }
 
@@ -166,12 +147,9 @@ int hm_set(const HashMap hm, const void *key, const void *value)
     const size_t hash = hm->hash_func(key, hm->key_size) % hm->capacity;
     for (Bucket *bucket = hm->buckets[hash]; bucket != NULL; bucket = bucket->next)
     {
-        if (memcmp(bucket->key, key, hm->key_size) == 0)
+        if (memcmp(bucket->payload, key, hm->key_size) == 0)
         {
-            free(bucket->value);
-            bucket->value = malloc(hm->value_size);
-            assert(bucket->value != NULL);
-            memcpy(bucket->value, value, hm->value_size);
+            memcpy(bucket->payload + hm->key_size, value, hm->value_size);
             bucket->status = ACTIVE;
 
             return 0;
@@ -190,12 +168,9 @@ int hm_put(const HashMap hm, const void *key, const void *value)
     const size_t hash = hm->hash_func(key, hm->key_size) % hm->capacity;
     for (Bucket *bucket = hm->buckets[hash]; bucket != NULL; bucket = bucket->next)
     {
-        if (memcmp(bucket->key, key, hm->key_size) == 0)
+        if (memcmp(bucket->payload, key, hm->key_size) == 0)
         {
-            free(bucket->value);
-            bucket->value = malloc(hm->value_size);
-            assert(bucket->value != NULL);
-            memcpy(bucket->value, value, hm->value_size);
+            memcpy(bucket->payload + hm->key_size, value, hm->value_size);
             bucket->status = ACTIVE;
             return 0;
         }
@@ -212,9 +187,9 @@ int hm_put(const HashMap hm, const void *key, const void *value)
 bool hm_contains(const HashMap hm, const void *key)
 {
     const size_t hash = hm->hash_func(key, hm->key_size) % hm->capacity;
-    for (Bucket *bucket = hm->buckets[hash]; bucket != NULL; bucket = bucket->next)
+    for (const Bucket *bucket = hm->buckets[hash]; bucket != NULL; bucket = bucket->next)
     {
-        if (bucket->status == ACTIVE && memcmp(bucket->key, key, hm->key_size) == 0)
+        if (bucket->status == ACTIVE && memcmp(bucket->payload, key, hm->key_size) == 0)
         {
             return true;
         }
@@ -234,7 +209,7 @@ int hm_remove(const HashMap hm, const void *key)
     Bucket *prev      = NULL;
     for (Bucket *bucket = hm->buckets[hash]; bucket != NULL; bucket = bucket->next)
     {
-        if (memcmp(bucket->key, key, hm->key_size) == 0)
+        if (memcmp(bucket->payload, key, hm->key_size) == 0)
         {
             if (prev == NULL)
             {

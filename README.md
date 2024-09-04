@@ -153,6 +153,57 @@ int hm_remove(HashMap hm, const void *key);
 
 ---
 
+## Micro Benchmark
+
+> **_NOTE:_** Micro benchmarks can be misleading, and performance can vary from system to system. All implementation used a struct/class containg a string as the key and an `int` as value. 
+
+### My own HashMap
+
+> **_NOTE:_** Used gcc -std=c2x -Ofast hashmap.h hashmap.c main.c for compilation. Used the generic hash function.
+
+| Operation        | Time (for 100,000 elements) |
+|------------------|------------------------------|
+| Insertion        | 0.003276 seconds             |
+| Retrieval        | 0.001399 seconds             |
+| Update           | 0.002048 seconds             |
+| Deletion         | 0.000932 seconds             |
+
+### C++'s std::unordered_map
+
+> **_NOTE:_** Used g++ -Ofast main.cpp.
+
+| Operation        | Time (for 100,000 elements) |
+|------------------|------------------------------|
+| Insertion        | 0.011043 seconds             |
+| Retrieval        | 0.002178 seconds             |
+| Update           | 0.003186 seconds             |
+| Deletion         | 0.005500 seconds             |
+
+### Java's HashMap
+
+> **_NOTE:_** Used OpenJDK 22.
+
+| Operation        | Time (for 100,000 elements) |
+|------------------|------------------------------|
+| Insertion        | 0.019620 seconds             |
+| Retrieval        | 0.008468 seconds             |
+| Update           | 0.010275 seconds             |
+| Deletion         | 0.008069 seconds             |
+
+
+### Python's Dict
+
+> **_NOTE:_** Used CPython 3.11.9.
+
+| Operation        | Time (for 100,000 elements) |
+|------------------|------------------------------|
+| Insertion        | 0.112000 seconds             |
+| Retrieval        | 0.102000 seconds             |
+| Update           | 0.140000 seconds             |
+| Deletion         | 0.103000 seconds             |
+
+---
+
 ## Example
 
 Here is a basic example demonstrating how to use the `HashMap` functions:

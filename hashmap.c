@@ -68,7 +68,7 @@ static int hm_resize(const HashMap hm)
     // FIX realloc doesn't work properly
     Bucket *new_buckets = calloc(new_capacity, hm->bucket_size);
     assert(new_buckets != NULL);
-    
+
     for (size_t i = 0; i < new_capacity; ++i)
     {
         Bucket *bucket = (Bucket *) ((char *) new_buckets + i * hm->bucket_size);
@@ -145,7 +145,7 @@ void* hm_get(const HashMap hm, const void *key)
         }
         hash   = (hash + 1) % hm->capacity;
         bucket = get_bucket(hm, hash);
-        if (bucket == (Bucket *) ((char *) hm->buckets + start_hash * hm->bucket_size))
+        if (bucket == get_bucket(hm, start_hash))
         {
             break;
         }
@@ -189,8 +189,7 @@ int hm_put(const HashMap hm, const void *key, const void *value)
     {
         hash   = (hash + 1) % hm->capacity;
         bucket = get_bucket(hm, hash);
-
-        if (bucket == (Bucket *) ((char *) hm->buckets + start_hash * hm->bucket_size))
+        if (bucket == get_bucket(hm, start_hash))
         {
             return 1;
         }
@@ -199,6 +198,7 @@ int hm_put(const HashMap hm, const void *key, const void *value)
     if (bucket->status == ACTIVE && memcmp(bucket->payload, key, hm->key_size) == 0)
     {
         memcpy(bucket->payload + hm->key_size, value, hm->value_size);
+        
         return 0;
     }
 
@@ -225,11 +225,12 @@ bool hm_contains(const HashMap hm, const void *key)
         }
         hash   = (hash + 1) % hm->capacity;
         bucket = get_bucket(hm, hash);
-        if (bucket == (Bucket *) ((char *) hm->buckets + start_hash * hm->bucket_size))
+        if (bucket == get_bucket(hm, start_hash))
         {
             break;
         }
     }
+    
     return false;
 }
 
@@ -254,7 +255,7 @@ int hm_remove(const HashMap hm, const void *key)
         }
         hash   = (hash + 1) % hm->capacity;
         bucket = get_bucket(hm, hash);
-        if (bucket == (Bucket *) ((char *) hm->buckets + start_hash * hm->bucket_size))
+        if (bucket == get_bucket(hm, start_hash))
         {
             break;
         }

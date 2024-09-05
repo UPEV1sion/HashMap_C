@@ -65,7 +65,7 @@ static int hm_resize(const HashMap hm)
     if (hm->size >= MAX_CAPACITY * LOAD_FACTOR)
         return 1;
 
-    // FIX realloc doesn't work properly
+    // FIXME realloc doesn't work properly
     Bucket *new_buckets = calloc(new_capacity, hm->bucket_size);
     assert(new_buckets != NULL);
 
@@ -257,6 +257,7 @@ int hm_remove(const HashMap hm, const void *key)
 
             while (next_bucket->status == ACTIVE)
             {
+                // Checking if the bucket following belongs there or if its the result of linear probing
                 const size_t next_original_hash = hm->hash_func(next_bucket->payload, hm->key_size) % hm->capacity;
 
                 if ((next_original_hash <= current_hash && current_hash < next_hash) ||

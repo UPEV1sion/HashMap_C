@@ -78,7 +78,7 @@ static int hm_resize(const HashMap hm)
 
     for (size_t i = 0; i < hm->capacity; ++i)
     {
-        Bucket *bucket = (Bucket *) ((char *) hm->buckets + i * hm->bucket_size);
+        Bucket *bucket = get_bucket(hm, i);
         if (bucket->status == ACTIVE)
         {
             size_t new_hash    = hm->hash_func(bucket->payload, hm->key_size) % new_capacity;
@@ -116,7 +116,7 @@ HashMap hm_create(const size_t hm_capacity, const size_t key_size, const size_t 
 
     for (size_t i = 0; i < hm->capacity; ++i)
     {
-        Bucket *bucket = (Bucket *) ((char *) hm->buckets + i * hm->bucket_size);
+        Bucket *bucket = get_bucket(hm, i);
         bucket->status = TOMBSTONE;
         bucket->hash   = 0;
     }

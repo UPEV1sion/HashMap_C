@@ -2,7 +2,8 @@
 
 A very performant, fairly lightweight `HashMap` implementation in C.
 
-> **_NOTE:_**  This HashMap implementation solely relies on a "Open Adressing" implementation. A "Array of `Linked List`s" implementation and "Treeifying" a node after a certain threshold yielded a negative performance impact from the extensive testing needed. Therefore, the current implementation uses "Open Adressing".
+> [!NOTE]
+> This HashMap implementation solely relies on a "Open Adressing" implementation. A "Array of `Linked List`s" implementation and "Treeifying" a node after a certain threshold yielded a negative performance impact from the extensive testing needed. Therefore, the current implementation uses "Open Adressing".
 
 This document provides an overview and detailed description of the functions available in this `HashMap` implementation.
 
@@ -36,7 +37,8 @@ HashMap hm_create(size_t hm_capacity, size_t key_size, size_t value_size, hash h
 
 **Description**: Creates a new `HashMap` with a hash function.
 
-> **_NOTE:_** Recommended way to create a `HashMap` is to use a custom hash function to avoid unwanted collisions.
+> [!TIP]
+> Recommended way to create a `HashMap` is to use a custom hash function to avoid unwanted collisions.
 
 - **Parameters**:
   - `hm_capacity`: The initial capacity of the `HashMap`.
@@ -155,52 +157,60 @@ int hm_remove(HashMap hm, const void *key);
 
 ## Micro Benchmark
 
-> **_NOTE:_** Micro benchmarks can be misleading, and performance can vary from system to system. All implementation used a struct/class containg a string as the key and an `int` as value. 
+> [!WARNING]
+> Micro benchmarks can be misleading, and performance can vary from system to system.
+
+> [!NOTE]
+> All implementation used a `struct/class` containg a `string` as the key and an `int` as value. Same hashing function was used in each benchmark (DJB2). Each micro benchmark is was run 100 times and the average time for each operation was taken. 
 
 ### My own HashMap
 
-> **_NOTE:_** Used gcc -std=c2x -Ofast hashmap.h hashmap.c main.c for compilation. Used the generic hash function.
+> [!NOTE]
+> Used gcc -std=c2x -Ofast hashmap.h hashmap.c main.c for compilation.
 
-| Operation        | Time (for 100,000 elements) |
+| Operation        | Time (for 100,000 elements)  |
 |------------------|------------------------------|
-| Insertion        | 0.003276 seconds             |
-| Retrieval        | 0.001399 seconds             |
-| Update           | 0.002048 seconds             |
-| Deletion         | 0.000932 seconds             |
+| Insertion        | 0.003201 seconds             |
+| Retrieval        | 0.001517 seconds             |
+| Update           | 0.002065 seconds             |
+| Deletion         | 0.001839 seconds             |
 
 ### C++'s std::unordered_map
 
-> **_NOTE:_** Used g++ -Ofast main.cpp.
+> [!NOTE]
+> Used g++ -Ofast main.cpp.
 
-| Operation        | Time (for 100,000 elements) |
+| Operation        | Time (for 100,000 elements)  |
 |------------------|------------------------------|
-| Insertion        | 0.011043 seconds             |
-| Retrieval        | 0.002178 seconds             |
-| Update           | 0.003186 seconds             |
-| Deletion         | 0.005500 seconds             |
+| Insertion        | 0.008837 seconds             |
+| Retrieval        | 0.002278 seconds             |
+| Update           | 0.003203 seconds             |
+| Deletion         | 0.005679 seconds             |
 
 ### Java's HashMap
 
-> **_NOTE:_** Used OpenJDK 22.
+> [!NOTE]
+> Used OpenJDK 22.
 
-| Operation        | Time (for 100,000 elements) |
+| Operation        | Time (for 100,000 elements)  |
 |------------------|------------------------------|
-| Insertion        | 0.019620 seconds             |
-| Retrieval        | 0.008468 seconds             |
-| Update           | 0.010275 seconds             |
-| Deletion         | 0.008069 seconds             |
+| Insertion        | 0.009400 seconds             |
+| Retrieval        | 0.005112 seconds             |
+| Update           | 0.005558 seconds             |
+| Deletion         | 0.003137 seconds             |
 
 
 ### Python's Dict
 
-> **_NOTE:_** Used CPython 3.11.9.
+> [!NOTE]
+> Used CPython 3.11.9.
 
-| Operation        | Time (for 100,000 elements) |
+| Operation        | Time (for 100,000 elements)  |
 |------------------|------------------------------|
-| Insertion        | 0.112000 seconds             |
-| Retrieval        | 0.102000 seconds             |
-| Update           | 0.140000 seconds             |
-| Deletion         | 0.103000 seconds             |
+| Insertion        | 0.103638 seconds             |
+| Retrieval        | 0.098617 seconds             |
+| Update           | 0.135437 seconds             |
+| Deletion         | 0.099450 seconds             |
 
 ---
 

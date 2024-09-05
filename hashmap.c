@@ -139,7 +139,7 @@ void* hm_get(const HashMap hm, const void *key)
 
     while (bucket->status != TOMBSTONE)
     {
-        if (bucket->status == ACTIVE && memcmp(bucket->payload, key, hm->key_size) == 0)
+        if (memcmp(bucket->payload, key, hm->key_size) == 0)
         {
             return bucket->payload + hm->key_size;
         }
@@ -161,7 +161,7 @@ int hm_set(const HashMap hm, const void *key, const void *value)
 
     while (bucket->status != TOMBSTONE)
     {
-        if (bucket->status == ACTIVE && memcmp(bucket->payload, key, hm->key_size) == 0)
+        if (memcmp(bucket->payload, key, hm->key_size) == 0)
         {
             memcpy(bucket->payload + hm->key_size, value, hm->value_size);
             return 0;
@@ -184,8 +184,7 @@ int hm_put(const HashMap hm, const void *key, const void *value)
     const size_t start_hash = hash;
     Bucket *bucket          = get_bucket(hm, hash);
 
-    while (bucket->status != TOMBSTONE && !(bucket->status == ACTIVE && memcmp(bucket->payload, key, hm->key_size) ==
-                                            0))
+    while (bucket->status != TOMBSTONE && memcmp(bucket->payload, key, hm->key_size) != 0)
     {
         hash   = (hash + 1) % hm->capacity;
         bucket = get_bucket(hm, hash);
@@ -219,7 +218,7 @@ bool hm_contains(const HashMap hm, const void *key)
 
     while (bucket->status != TOMBSTONE)
     {
-        if (bucket->status == ACTIVE && memcmp(bucket->payload, key, hm->key_size) == 0)
+        if (memcmp(bucket->payload, key, hm->key_size) == 0)
         {
             return true;
         }
@@ -242,22 +241,21 @@ size_t hm_size(const HashMap hm)
 int hm_remove(const HashMap hm, const void *key)
 {
     const size_t init_hash = hm->hash_func(key, hm->key_size) % hm->capacity;
-    size_t current_hash = init_hash;
-    Bucket *bucket = get_bucket(hm, current_hash);
+    size_t current_hash    = init_hash;
+    Bucket *bucket         = get_bucket(hm, current_hash);
 
     while (bucket->status != TOMBSTONE)
     {
-        if (bucket->status == ACTIVE && memcmp(bucket->payload, key, hm->key_size) == 0)
+        if (memcmp(bucket->payload, key, hm->key_size) == 0)
         {
             bucket->status = TOMBSTONE;
             hm->size--;
 
-            size_t next_hash = (current_hash + 1) % hm->capacity;
+            size_t next_hash    = (current_hash + 1) % hm->capacity;
             Bucket *next_bucket = get_bucket(hm, next_hash);
 
             while (next_bucket->status == ACTIVE)
             {
-                // Checking if the bucket following belongs there or if its the result of linear probing
                 const size_t next_original_hash = hm->hash_func(next_bucket->payload, hm->key_size) % hm->capacity;
 
                 if ((next_original_hash <= current_hash && current_hash < next_hash) ||
@@ -268,10 +266,10 @@ int hm_remove(const HashMap hm, const void *key)
                     next_bucket->status = TOMBSTONE;
 
                     current_hash = next_hash;
-                    bucket = get_bucket(hm, current_hash);
+                    bucket       = get_bucket(hm, current_hash);
                 }
 
-                next_hash = (next_hash + 1) % hm->capacity;
+                next_hash   = (next_hash + 1) % hm->capacity;
                 next_bucket = get_bucket(hm, next_hash);
             }
 
@@ -279,7 +277,7 @@ int hm_remove(const HashMap hm, const void *key)
         }
 
         current_hash = (current_hash + 1) % hm->capacity;
-        bucket = get_bucket(hm, current_hash);
+        bucket       = get_bucket(hm, current_hash);
 
         if (current_hash == init_hash)
         {

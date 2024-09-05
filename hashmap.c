@@ -176,9 +176,8 @@ int hm_set(const HashMap hm, const void *key, const void *value)
 int hm_put(const HashMap hm, const void *key, const void *value)
 {
     if (calc_load_fac(hm) > LOAD_FACTOR)
-    {
-        if (hm_resize(hm) != 0) return 1;
-    }
+        if (hm_resize(hm) != 0) 
+            return 1;
 
     size_t hash             = hm->hash_func(key, hm->key_size) % hm->capacity;
     const size_t start_hash = hash;

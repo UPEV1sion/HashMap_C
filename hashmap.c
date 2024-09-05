@@ -198,7 +198,7 @@ int hm_put(const HashMap hm, const void *key, const void *value)
     if (bucket->status == ACTIVE && memcmp(bucket->payload, key, hm->key_size) == 0)
     {
         memcpy(bucket->payload + hm->key_size, value, hm->value_size);
-        
+
         return 0;
     }
 
@@ -230,7 +230,7 @@ bool hm_contains(const HashMap hm, const void *key)
             break;
         }
     }
-    
+
     return false;
 }
 
@@ -241,9 +241,9 @@ size_t hm_size(const HashMap hm)
 
 int hm_remove(const HashMap hm, const void *key)
 {
-    size_t hash             = hm->hash_func(key, hm->key_size) % hm->capacity;
-    const size_t start_hash = hash;
-    Bucket *bucket          = get_bucket(hm, hash);
+    const size_t init_hash = hm->hash_func(key, hm->key_size) % hm->capacity;
+    size_t current_hash = init_hash;
+    Bucket *bucket = get_bucket(hm, current_hash);
 
     while (bucket->status != TOMBSTONE)
     {
@@ -251,11 +251,36 @@ int hm_remove(const HashMap hm, const void *key)
         {
             bucket->status = TOMBSTONE;
             hm->size--;
+
+            size_t next_hash = (current_hash + 1) % hm->capacity;
+            Bucket *next_bucket = get_bucket(hm, next_hash);
+
+            while (next_bucket->status == ACTIVE)
+            {
+                const size_t next_original_hash = hm->hash_func(next_bucket->payload, hm->key_size) % hm->capacity;
+
+                if ((next_original_hash <= current_hash && current_hash < next_hash) ||
+                    (next_hash < next_original_hash && next_original_hash <= current_hash))
+                {
+                    memcpy(bucket, next_bucket, hm->bucket_size);
+
+                    next_bucket->status = TOMBSTONE;
+
+                    current_hash = next_hash;
+                    bucket = get_bucket(hm, current_hash);
+                }
+
+                next_hash = (next_hash + 1) % hm->capacity;
+                next_bucket = get_bucket(hm, next_hash);
+            }
+
             return 0;
         }
-        hash   = (hash + 1) % hm->capacity;
-        bucket = get_bucket(hm, hash);
-        if (bucket == get_bucket(hm, start_hash))
+
+        current_hash = (current_hash + 1) % hm->capacity;
+        bucket = get_bucket(hm, current_hash);
+
+        if (current_hash == init_hash)
         {
             break;
         }

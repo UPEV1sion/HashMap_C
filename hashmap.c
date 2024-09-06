@@ -13,7 +13,7 @@
 #define MAX_CAPACITY (1 << 30)
 #define LOAD_FACTOR 0.75
 
-typedef enum { ACTIVE, TOMBSTONE } BucketStatus;
+typedef enum { TOMBSTONE, ACTIVE } BucketStatus;
 
 typedef struct Bucket
 {
@@ -65,16 +65,8 @@ static int hm_resize(const HashMap hm)
     if (hm->size >= MAX_CAPACITY * LOAD_FACTOR)
         return 1;
 
-    // FIXME realloc doesn't work properly
     Bucket *new_buckets = calloc(new_capacity, hm->bucket_size);
     assert(new_buckets != NULL);
-
-    for (size_t i = 0; i < new_capacity; ++i)
-    {
-        Bucket *bucket = (Bucket *) ((char *) new_buckets + i * hm->bucket_size);
-        bucket->status = TOMBSTONE;
-        bucket->hash   = 0;
-    }
 
     for (size_t i = 0; i < hm->capacity; ++i)
     {

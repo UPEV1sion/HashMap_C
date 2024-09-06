@@ -245,7 +245,7 @@ int hm_remove(const HashMap hm, const void *key)
             size_t next_hash    = (current_hash + 1) % hm->capacity;
             Bucket *next_bucket = get_bucket(hm, next_hash);
 
-            while (next_bucket->status == ACTIVE)
+            while (next_bucket->status != TOMBSTONE)
             {
                 const size_t next_original_hash = hm->hash_func(next_bucket->payload, hm->key_size) % hm->capacity;
 

@@ -54,12 +54,6 @@ void benchmark_hashmap(int num_operations, int key_length)
     }
     end        = clock();
     time_taken = ((double) (end - start)) / CLOCKS_PER_SEC;
-
-	for (int i = 0; i < num_operations / 2; i++)
-    {
-        hm_remove(map, &keys[i]);
-    }
-	
     printf("Insertion time for %d elements: %.6f seconds\n", num_operations, time_taken);
 
     int null_count = 0;

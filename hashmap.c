@@ -1,11 +1,12 @@
+#include <stddef.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
 
-#include "hashset.h"
+#include "hashmap.h"
 
 //
-// Created by Emanuel on 05.09.2024.
+// Created by Emanuel on 04.09.2024.
 //
 
 #define MIN_CAPACITY (1 << 4)
@@ -18,22 +19,24 @@ typedef struct Bucket
 {
     size_t hash;
     BucketStatus status;
-    char key[];
+    char payload[];
 } Bucket;
 
-struct HashSet
+struct HashMap
 {
     size_t size;
     size_t capacity;
     size_t key_size;
+    size_t value_size;
     size_t bucket_size;
 
     hash hash_func;
     Bucket *buckets;
 };
 
-static size_t default_hash(const void *key, const size_t key_size)
+static size_t _hash(const void *key, const size_t key_size)
 {
+    // DJB2 hash func variation
     const unsigned char *data = key;
     size_t hash               = 5381;
 
@@ -45,182 +48,232 @@ static size_t default_hash(const void *key, const size_t key_size)
     return hash;
 }
 
-static inline double calc_load_fac(const HashSet hs)
+static inline double calc_load_fac(const HashMap hm)
 {
-    return (double) hs->size / hs->capacity;
+    return (double) hm->size / hm->capacity;
 }
 
-static inline Bucket* get_bucket(const HashSet hs, const size_t hash)
+static inline Bucket* get_bucket(const HashMap hm, const size_t hash)
 {
-    return (Bucket *) ((char *) hs->buckets + hash * hs->bucket_size);
+    return (Bucket *) ((char *) hm->buckets + hash * hm->bucket_size);
 }
 
-static int hs_resize(const HashSet hs)
+static int hm_resize(const HashMap hm)
 {
-    size_t new_capacity = hs->capacity * 2;
+    size_t new_capacity = hm->capacity * 2;
     if (new_capacity > MAX_CAPACITY) new_capacity = MAX_CAPACITY;
-    if (new_capacity >= MAX_CAPACITY * LOAD_FACTOR)
+    if (hm->size >= MAX_CAPACITY * LOAD_FACTOR)
         return 1;
 
-    Bucket *new_buckets = calloc(new_capacity, hs->bucket_size);
+    Bucket *new_buckets = calloc(new_capacity, hm->bucket_size);
     assert(new_buckets != NULL);
 
-    for (size_t i = 0; i < hs->capacity; i++)
+    for (size_t i = 0; i < hm->capacity; ++i)
     {
-        Bucket *bucket = get_bucket(hs, i);
+        Bucket *bucket = get_bucket(hm, i);
         if (bucket->status == ACTIVE)
         {
-            size_t new_hash    = hs->hash_func(bucket->key, hs->key_size) % new_capacity;
-            Bucket *new_bucket = (Bucket *) ((char *) new_buckets + new_hash * hs->bucket_size);
+            size_t new_hash    = hm->hash_func(bucket->payload, hm->key_size) % new_capacity;
+            Bucket *new_bucket = (Bucket *) ((char *) new_buckets + new_hash * hm->bucket_size);
             while (new_bucket->status == ACTIVE)
             {
                 new_hash   = (new_hash + 1) % new_capacity;
-                new_bucket = (Bucket *) ((char *) new_buckets + new_hash * hs->bucket_size);
+                new_bucket = (Bucket *) ((char *) new_buckets + new_hash * hm->bucket_size);
             }
-            memcpy(new_bucket, bucket, hs->bucket_size);
+            memcpy(new_bucket, bucket, hm->bucket_size);
         }
     }
 
-    free(hs->buckets);
-    hs->buckets  = new_buckets;
-    hs->capacity = new_capacity;
+    free(hm->buckets);
+    hm->buckets  = new_buckets;
+    hm->capacity = new_capacity;
 
     return 0;
 }
 
-HashSet hs_create(const size_t hs_capacity, const size_t key_size, const hash hash_func)
+HashMap hm_create(const size_t hm_capacity, const size_t key_size, const size_t value_size, const hash hash_func)
 {
-    const HashSet hs = malloc(sizeof(*hs));
-    assert(hs != NULL);
+    HashMap hm = malloc(sizeof(*hm));
+    assert(hm != NULL);
 
-    hs->hash_func   = hash_func == NULL ? default_hash : hash_func;
-    hs->capacity    = (hs_capacity < MIN_CAPACITY) ? MIN_CAPACITY : hs_capacity;
-    hs->bucket_size = sizeof(Bucket) + key_size;
-    hs->buckets     = malloc(hs->capacity * hs->bucket_size);
-    assert(hs->buckets != NULL);
+    hm->hash_func   = (hash_func == NULL) ? _hash : hash_func;
+    hm->capacity    = (hm_capacity < MIN_CAPACITY) ? MIN_CAPACITY : hm_capacity;
+    hm->bucket_size = sizeof(Bucket) + key_size + value_size;
+    hm->buckets     = malloc(hm->bucket_size * hm->capacity);
+    assert(hm->buckets != NULL);
 
-    hs->size     = 0;
-    hs->key_size = key_size;
+    hm->size       = 0;
+    hm->key_size   = key_size;
+    hm->value_size = value_size;
 
-    for (size_t i = 0; i < hs->capacity; ++i)
+    for (size_t i = 0; i < hm->capacity; ++i)
     {
-        Bucket *bucket = get_bucket(hs, i);
+        Bucket *bucket = get_bucket(hm, i);
         bucket->status = TOMBSTONE;
         bucket->hash   = 0;
     }
 
-    return hs;
+    return hm;
 }
 
-int hs_destroy(const HashSet hs)
+int hm_destroy(const HashMap hm)
 {
-    free(hs->buckets);
-    free(hs);
-
+    free(hm->buckets);
+    free(hm);
     return 0;
 }
 
-bool hs_contains(const HashSet hs, const void *key)
+void* hm_get(const HashMap hm, const void *key)
 {
-    size_t hash             = hs->hash_func(key, hs->key_size) % hs->capacity;
+    size_t hash             = hm->hash_func(key, hm->key_size) % hm->capacity;
     const size_t start_hash = hash;
-    Bucket *bucket          = get_bucket(hs, hash);
+    Bucket *bucket          = get_bucket(hm, hash);
 
     while (bucket->status != TOMBSTONE)
     {
-        if (memcmp(bucket->key, key, hs->key_size) == 0)
+        if (memcmp(bucket->payload, key, hm->key_size) == 0)
         {
-            return true;
+            return bucket->payload + hm->key_size;
         }
-        hash   = (hash + 1) % hs->capacity;
-        bucket = get_bucket(hs, hash);
-        if (bucket == get_bucket(hs, start_hash)) break;
+        hash   = (hash + 1) % hm->capacity;
+        bucket = get_bucket(hm, hash);
+        if (bucket == get_bucket(hm, start_hash))
+        {
+            break;
+        }
     }
 
-    return false;
+    return NULL;
 }
 
-int hs_add(const HashSet hs, const void *key)
+int hm_set(const HashMap hm, const void *key, const void *value)
 {
-    if (calc_load_fac(hs) > LOAD_FACTOR)
-        if (hs_resize(hs) != 0)
+    size_t hash    = hm->hash_func(key, hm->key_size) % hm->capacity;
+    Bucket *bucket = get_bucket(hm, hash);
+
+    while (bucket->status != TOMBSTONE)
+    {
+        if (memcmp(bucket->payload, key, hm->key_size) == 0)
+        {
+            memcpy(bucket->payload + hm->key_size, value, hm->value_size);
+            return 0;
+        }
+        hash   = (hash + 1) % hm->capacity;
+        bucket = get_bucket(hm, hash);
+    }
+
+    return 1;
+}
+
+int hm_put(const HashMap hm, const void *key, const void *value)
+{
+    if (calc_load_fac(hm) > LOAD_FACTOR)
+        if (hm_resize(hm) != 0)
             return 1;
 
-    size_t hash             = hs->hash_func(key, hs->key_size) % hs->capacity;
+    size_t hash             = hm->hash_func(key, hm->key_size) % hm->capacity;
     const size_t start_hash = hash;
-    Bucket *bucket          = get_bucket(hs, hash);
+    Bucket *bucket          = get_bucket(hm, hash);
 
-    while (bucket->status != TOMBSTONE && memcmp(bucket->key, key, hs->key_size) != 0)
+    while (bucket->status != TOMBSTONE && memcmp(bucket->payload, key, hm->key_size) != 0)
     {
-        hash   = (hash + 1) % hs->capacity;
-        bucket = get_bucket(hs, hash);
-        if (bucket == get_bucket(hs, start_hash))
+        hash   = (hash + 1) % hm->capacity;
+        bucket = get_bucket(hm, hash);
+        if (bucket == get_bucket(hm, start_hash))
         {
             return 1;
         }
     }
 
-    if (bucket->status == ACTIVE && memcmp(bucket->key, key, hs->key_size) == 0)
+    if (bucket->status == ACTIVE && memcmp(bucket->payload, key, hm->key_size) == 0)
     {
-        memcpy(bucket->key, key, hs->key_size);
+        memcpy(bucket->payload + hm->key_size, value, hm->value_size);
 
         return 0;
     }
 
     bucket->status = ACTIVE;
     bucket->hash   = hash;
-    memcpy(bucket->key, key, hs->key_size);
-    hs->size++;
+    memcpy(bucket->payload, key, hm->key_size);
+    memcpy(bucket->payload + hm->key_size, value, hm->value_size);
+    hm->size++;
 
     return 0;
 }
 
-size_t hs_size(const HashSet hs)
+bool hm_contains(const HashMap hm, const void *key)
 {
-    return hs->size;
-}
-
-int hs_remove(const HashSet hs, const void *key)
-{
-    const size_t init_hash = hs->hash_func(key, hs->key_size) % hs->capacity;
-    size_t current_hash    = init_hash;
-    Bucket *bucket         = get_bucket(hs, current_hash);
+    size_t hash             = hm->hash_func(key, hm->key_size) % hm->capacity;
+    const size_t start_hash = hash;
+    Bucket *bucket          = get_bucket(hm, hash);
 
     while (bucket->status != TOMBSTONE)
     {
-        if (memcmp(bucket->key, key, hs->key_size) == 0)
+        if (memcmp(bucket->payload, key, hm->key_size) == 0)
+        {
+            return true;
+        }
+        hash   = (hash + 1) % hm->capacity;
+        bucket = get_bucket(hm, hash);
+        if (bucket == get_bucket(hm, start_hash))
+        {
+            break;
+        }
+    }
+
+    return false;
+}
+
+size_t hm_size(const HashMap hm)
+{
+    return hm->size;
+}
+
+int hm_remove(const HashMap hm, const void *key)
+{
+    const size_t init_hash = hm->hash_func(key, hm->key_size) % hm->capacity;
+    size_t current_hash    = init_hash;
+    Bucket *bucket         = get_bucket(hm, current_hash);
+
+    while (bucket->status != TOMBSTONE)
+    {
+        if (memcmp(bucket->payload, key, hm->key_size) == 0)
         {
             bucket->status = TOMBSTONE;
-            hs->size--;
+            hm->size--;
 
-            size_t next_hash    = (current_hash + 1) % hs->capacity;
-            Bucket *next_bucket = get_bucket(hs, next_hash);
+            size_t next_hash    = (current_hash + 1) % hm->capacity;
+            Bucket *next_bucket = get_bucket(hm, next_hash);
 
-            while (next_bucket->status != ACTIVE)
+            while (next_bucket->status != TOMBSTONE)
             {
-                const size_t next_original_hash = hs->hash_func(next_bucket->key, hs->key_size) % hs->capacity;
+                const size_t next_original_hash = hm->hash_func(next_bucket->payload, hm->key_size) % hm->capacity;
 
                 if ((next_original_hash <= current_hash && current_hash < next_hash) ||
-                    next_hash < next_original_hash && next_original_hash <= current_hash)
+                    (next_hash < next_original_hash && next_original_hash <= current_hash))
                 {
-                    memcpy(bucket, next_bucket, hs->bucket_size);
+                    memcpy(bucket, next_bucket, hm->bucket_size);
 
                     next_bucket->status = TOMBSTONE;
 
                     current_hash = next_hash;
-                    bucket       = get_bucket(hs, current_hash);
+                    bucket       = get_bucket(hm, current_hash);
                 }
-                next_hash   = (next_hash + 1) % hs->capacity;
-                next_bucket = get_bucket(hs, next_hash);
+
+                next_hash   = (next_hash + 1) % hm->capacity;
+                next_bucket = get_bucket(hm, next_hash);
             }
 
             return 0;
         }
 
-        current_hash = (current_hash + 1) % hs->capacity;
-        bucket       = get_bucket(hs, current_hash);
+        current_hash = (current_hash + 1) % hm->capacity;
+        bucket       = get_bucket(hm, current_hash);
 
-        if (current_hash == init_hash) break;
+        if (current_hash == init_hash)
+        {
+            break;
+        }
     }
 
     return 1;

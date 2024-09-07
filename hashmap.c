@@ -34,7 +34,7 @@ struct HashMap
     Bucket *buckets;
 };
 
-static size_t _hash(const void *key, const size_t key_size)
+static size_t default_hash(const void *key, const size_t key_size)
 {
     // DJB2 hash func variation
     const unsigned char *data = key;
@@ -96,7 +96,7 @@ HashMap hm_create(const size_t hm_capacity, const size_t key_size, const size_t 
     HashMap hm = malloc(sizeof(*hm));
     assert(hm != NULL);
 
-    hm->hash_func   = (hash_func == NULL) ? _hash : hash_func;
+    hm->hash_func   = (hash_func == NULL) ? default_hash : hash_func;
     hm->capacity    = (hm_capacity < MIN_CAPACITY) ? MIN_CAPACITY : hm_capacity;
     hm->bucket_size = sizeof(Bucket) + key_size + value_size;
     hm->buckets     = malloc(hm->bucket_size * hm->capacity);

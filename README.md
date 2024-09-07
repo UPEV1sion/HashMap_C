@@ -161,7 +161,7 @@ int hm_remove(HashMap hm, const void *key);
 > Micro benchmarks can be misleading, and performance can vary from system to system.
 
 > [!NOTE]
-> All implementation used a `struct/class` containg a `string` as the key and an `int` as value. Same hashing function was used in each benchmark (DJB2). Each micro benchmark is was run 100 times and the average time for each operation was taken. 
+> All implementation used a `struct/class` containg a randomly generated `string` as the key and an `int` as value. Same hashing function was used in each benchmark (DJB2). Each micro benchmark is was run 100 times and the average time for each operation was taken. 
 
 ### My own HashMap
 

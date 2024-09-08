@@ -3,7 +3,7 @@
 A very performant, fairly lightweight `HashMap` implementation in C.
 
 > [!NOTE]
-> This HashMap implementation solely relies on a "Open Adressing" implementation. A "Array of `Linked List`s" implementation and "Treeifying" a node after a certain threshold yielded a negative performance impact from the extensive testing needed. Therefore, the current implementation uses "Open Adressing".
+> This `HashMap` implementation solely relies on a "Open Adressing" implementation. A "Array of `Linked List`s" implementation and "Treeifying" a node after a certain threshold yielded a negative performance impact from the extensive testing needed. Therefore, the current implementation uses "Open Adressing".
 
 This document provides an overview and detailed description of the functions available in this `HashMap` implementation.
 
@@ -29,6 +29,7 @@ bool hm_contains(HashMap hm, const void *key);
 size_t hm_size(HashMap hm);
 int hm_remove(HashMap hm, const void *key);
 ```
+
 ## Function Reference
 
 ```c 

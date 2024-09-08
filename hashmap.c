@@ -118,6 +118,7 @@ HashMap hm_create(const size_t hm_capacity, const size_t key_size, const size_t 
 
 int hm_destroy(const HashMap hm)
 {
+    if(hm == NULL) return 1;
     free(hm->buckets);
     free(hm);
     return 0;
